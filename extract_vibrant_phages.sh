@@ -11,11 +11,16 @@ has_command () {
 
 has_command parallel && has_command pullseq
 
-sfile=/home/rambo/projects/CRISPRCas_Sediment/GuaymasC/guaymas_sampleids_withorf.txt
-basein=/home/rambo/projects/CRISPRCas_Sediment/GuaymasC
-baseout=/home/rambo/projects/CRISPRCas_Sediment/GuaymasC/GuaymasC_VIBRANT_extracted_phages
+basein=$1
+baseout=$2
+ext=$3
+#basein=/home/rambo/projects/CRISPRCas_Sediment/GuaymasC
+#baseout=/home/rambo/projects/CRISPRCas_Sediment/GuaymasC/GuaymasC_VIBRANT_extracted_phages
+#ext=faa
 
-ext=faa
+
+sfile=${basein}/sampleids_withphage.txt
+
 
 find ${basein}/VIBRANT* -type f -not -empty -name "*phages_combined.${ext}" | \
     rev | \
@@ -34,7 +39,7 @@ for sid in $(cat $sfile); do
         outdir=${baseout}/${vc}; test -d $outdir || mkdir -p $outdir
         for q in "${qual[@]}"; do
             echo "$sid --- $vc --- $q quality: extracting"
-            grep $vc ${baseout}/VIBRANT_${sid}/VIBRANT_results_${sid}/VIBRANT_genome_quality_${sid}.tsv | \
+            grep $vc ${basein}/VIBRANT_${sid}/VIBRANT_results_${sid}/VIBRANT_genome_quality_${sid}.tsv | \
             grep "$q quality" | \
             cut -f1 | \
             sort -u | \
