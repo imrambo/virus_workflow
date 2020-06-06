@@ -43,7 +43,7 @@ for sid in $(cat $sfile); do
             grep "$q quality" | \
             cut -f1 | \
             sort -u | \
-            parallel pullseq --input $baseout/VIBRANT_${sid}/VIBRANT_phages_${sid}/${sid}.phages_${vc}.${ext} --regex {}_.* '>' ${outdir}/${sid}_{}_${q}.${ext}
+            parallel pullseq --input ${basein}/VIBRANT_${sid}/VIBRANT_phages_${sid}/${sid}.phages_${vc}.${ext} --regex {}_.* '>' ${outdir}/${sid}_{}_${q}.${ext}
             echo "$sid --- $vc --- $q quality: finished"
         done
     done
