@@ -76,7 +76,7 @@ if opts.joblog:
         pass
     logging.basicConfig(filename = opts.joblog, level = logging.DEBUG, format = logging_format)
 else:
-    lfile = 'CRISPRDetect.{}.joblog'.format(str(datetime.now().strftime('%Y-%m-%d_%H-%M-%S')))
+    lfile = 'CRISPRDetect.{}.logger'.format(str(datetime.now().strftime('%Y-%m-%d_%H-%M-%S')))
     logging.basicConfig(filename = os.path.join(opts.tmp_dir, lfile), level = logging.DEBUG, format = logging_format)
 
 logger = logging.getLogger()
@@ -89,7 +89,7 @@ try:
     for key, value in output_paths.items():
         if not os.path.isdir(value):
             os.makedirs(value)
-            logging.info('Created output directory ' + value)
+            logging.info('Created output directory {}'.format(value))
         else:
             pass
 except:
@@ -108,17 +108,16 @@ if not prefix:
 gzip = False
 if shell_tools.is_gzipped(nt_fasta):
     gzip = True
-    logger.info('%s is gzip compressed, gunzip file...' % nt_fasta)
+    logger.info('{} is gzip compressed, gunzip file...'.format(nt_fasta))
     subprocess.run(['gunzip', nt_fasta], shell=False)
     nt_fasta = os.path.splitext(opts.fasta_file)[0]
 
 else:
     pass
 #==============================================================================
-###---BEGIN CRISPRDetect---###
 ###---Run CRISPRDetect---###
 logger.info('Run CRISPRDetect')
-print('Begin CRISPRDetect...')
+logger.info('Begin CRISPRDetect for {}'.format(nt_fasta))
 
 ###---CRISPRDetect---###
 #Pattern for CRISPRDetect output
@@ -144,6 +143,7 @@ crispr_detect_cmd = shell_tools.exec_cmd_generate(crispr_detect_exec, crispr_det
 #Run CRISPRDetect
 subprocess.run(crispr_detect_cmd, shell=False)
 
+print('End CRISPRDetect for', nt_fasta)
 ###---Read the GFF file produced by CRISPRDetect---###
 crispr_detect_gff = crispr_detect_outpatt + '.gff'
 
@@ -155,7 +155,7 @@ if os.stat(crispr_detect_gff).st_size > 0:
         #Convert the GFF to a pandas data frame, selecting full CRISPR arrays coords
         crispr_array_df = gff3_to_pddf(gff = crispr_detect_gff, ftype = 'repeat_region', index_col=False)
     except FileNotFoundError:
-        logger.error('CRISPRDetect GFF file %s not found' % crispr_detect_gff)
+        logger.error('CRISPRDetect GFF file {} not found'.format(crispr_detect_gff))
 
     if not crispr_array_df.empty:
         #Split up attributes for CRISPR arrays into new columns
@@ -169,7 +169,7 @@ if os.stat(crispr_detect_gff).st_size > 0:
         #Write the CRISPR spacers to an output nucleotide FASTA
         crispr_spacer_fna = os.path.join(output_paths['CRISPRDetect'], '%s_crispr_spacers.fna' % prefix)
         with open(crispr_spacer_fna, 'w') as spacer_fa:
-            logger.info('writing spacers to %s' % crispr_spacer_fna)
+            logger.info('writing spacers to {}'.format(crispr_spacer_fna))
             for index, row in crispr_spacer_df.iterrows():
                 spacer_fasta_record = '>%s_____%s' % (row['seqid'], row['ID']) + '\n' + row['Spacer'] + '\n'
                 spacer_fa.write(spacer_fasta_record)
@@ -185,8 +185,9 @@ if os.stat(crispr_detect_gff).st_size > 0:
                           '-T':opts.threads,
                           '-n':'11'}
         cdhit_est_spc_cmd = shell_tools.exec_cmd_generate('cd-hit-est', cdhit_est_opts)
+        logger.info('Begin: clustering unique spacers for {}'.format(nt_fasta))
         subprocess.run(cdhit_est_spc_cmd)
-
+        logger.info('End: clustering unique spacers for {}'.format(nt_fasta))
 else:
     no_crispr_msg = 'No putative CRISPRs found with CRISPRDetect for {}'.format(opts.fasta_file)
     print(no_crispr_msg)
