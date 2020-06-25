@@ -43,7 +43,8 @@ RUN apt-get -y update \
 
 RUN curl https://bootstrap.pypa.io/get-pip.py --output get-pip.py \
     && python2 get-pip.py \
-    && pip2 install coverage python-coveralls
+    && pip2 install coverage python-coveralls \
+    && rm get-pip.py
 
 RUN cpanm --force Unix::Sysexits \
     Try::Tiny \
