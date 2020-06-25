@@ -66,6 +66,14 @@ if not os.path.exists(opts.tmp_dir):
         logging.info('Temporary directory exists')
         pass
 
+nt_fasta = opts.fasta_file
+#Get the file basename to name output files
+nt_fasta_basename = shell_tools.get_basename(nt_fasta)
+#If --prefix is not set, use the name of the nucleotide fasta
+prefix = opts.prefix
+if not prefix:
+    prefix = nt_fasta_basename
+
 #Set up logger
 logging_format = '%(levelname)s %(asctime)s - %(message)s'
 if opts.joblog:
@@ -76,7 +84,7 @@ if opts.joblog:
         pass
     logging.basicConfig(filename = opts.joblog, level = logging.DEBUG, format = logging_format)
 else:
-    lfile = 'CRISPRDetect.{}.logger'.format(str(datetime.now().strftime('%Y-%m-%d_%H-%M-%S')))
+    lfile = 'CRISPRDetect.{datenow}.{fasta}.logger'.format(datenow=str(datetime.now().strftime('%Y-%m-%d_%H-%M-%S')), fasta=nt_fasta_basename)
     logging.basicConfig(filename = os.path.join(opts.tmp_dir, lfile), level = logging.DEBUG, format = logging_format)
 
 logger = logging.getLogger()
@@ -96,13 +104,13 @@ except:
     print('no --out_root specified')
     logger.error('Cannot create output directories, no --out_root specified')
 #==============================================================================
-nt_fasta = opts.fasta_file
+#nt_fasta = opts.fasta_file
 #Get the file basename to name output files
-nt_fasta_basename = shell_tools.get_basename(nt_fasta)
+#nt_fasta_basename = shell_tools.get_basename(nt_fasta)
 #If --prefix is not set, use the name of the nucleotide fasta
-prefix = opts.prefix
-if not prefix:
-    prefix = nt_fasta_basename
+#prefix = opts.prefix
+#if not prefix:
+#    prefix = nt_fasta_basename
 #==============================================================================
 #If the nucleotide fasta input is gzipped, gunzip it for use with CRISPRDetect
 gzip = False
