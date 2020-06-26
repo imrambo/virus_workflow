@@ -13,22 +13,74 @@ has_command () {
 
 has_command parallel && has_command spacepharer
 
-seqdir=/home/rambo/projects/CRISPRCas_Sediment/GuaymasC/GuaymasC_VIBRANT_extracted_phages
-outbase=/home/rambo/projects/CRISPRCas_Sediment/GuaymasC/GuaymasC_VIBRANT_extracted_phages_spacepharerDB
-tmpdir=/home/rambo/tmp
+usage="$(basename "$0"): create SpacePHARER databases for extracted VIBRANT phages
 
-prefix=GuaymasC_VIBRANT_extracted_phages
+where:
 
+   -h --- show this help message
+   -i --- directory containing VIBRANT phage FASTA from extract_vibrant_phages.sh
+   -o --- base output directory
+   -e --- file extenstion to pull from: fna (nucleotide), faa (amino)
+   -s --- temporary file directory
+   -l --- path to GNU parallel joblog
+   -t --- threads per job
+   -j --- number of parallel jobs
+   -d --- createsetdb database type
+   -x --- translation table
+   -p --- output prefix (required)
+
+    "
 tstamp=$(date +'%Y-%m-%d_%H-%M-%S')
-joblog=~/joblogs/spacepharer_${prefix}_targetDB_${tstamp}.joblog
-njobs=4
-threads=2
-ext=faa
+ext=fna
+threads=1
+njobs=2
+joblog=~/joblogs/spacepharer_createsetdb_${tstamp}.joblog
+tmpdir=/home/rambo/tmp
+dbtype=0
+trans_table=11
+
+while getopts ':hi:o:e:s:l:t:j:d:x:p:' option; do
+    case "${option}" in
+    h) echo "$usage"
+       exit ;;
+    i) seqdir=${OPTARG};;
+    o) outbase=${OPTARG};;
+    e) ext=${OPTARG};;
+    s) tmpdir=${OPTARG};;
+    l) joblog=${OPTARG};;
+    t) threads=${OPTARG};;
+    j) njobs=${OPTARG};;
+    d) dbtype=${OPTARG};;
+    x) trans_table=${OPTARG};;
+    p) prefix=${OPTARG};;
+
+    :) printf "missing argument for -%s\n" "$OPTARG" >&2
+       echo "$usage" >&2
+       exit 1 ;;
+    \?) printf "illegal option: -%s\n" "$OPTARG" >&2
+        echo "$usage" >&2
+        exit 1 ;;
+    esac
+done
+
+shift $((OPTIND - 1))
+
+#seqdir=/home/rambo/projects/CRISPRCas_Sediment/GuaymasC/GuaymasC_VIBRANT_extracted_phages
+#outbase=/home/rambo/projects/CRISPRCas_Sediment/GuaymasC/spacepharer_db/GuaymasC_VIBRANT_extracted_phages_spacepharerDB
+#tmpdir=/home/rambo/tmp
+
+#prefix=GuaymasC_VIBRANT_extracted_phages
+
+#tstamp=$(date +'%Y-%m-%d_%H-%M-%S')
+#joblog=~/joblogs/spacepharer_${prefix}_targetDB_${tstamp}.joblog
+#njobs=4
+#threads=2
+#ext=fna
 
 #Spacepharer parameters
 #createsetdb database type - 0 == auto, 1 == amino, 2 == nuc
-dbtype=0
-trans_table=11
+#dbtype=0
+#trans_table=11
 
 # Spacepharer database - base directory
 dbdir=${outbase}/${prefix}

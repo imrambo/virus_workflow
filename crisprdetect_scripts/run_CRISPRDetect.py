@@ -148,6 +148,7 @@ crispr_detect_optdict = {'-f':nt_fasta,
 crispr_detect_exec = os.path.join(opts.CRISPRDetectDir, 'CRISPRDetect.pl')
 
 crispr_detect_cmd = shell_tools.exec_cmd_generate(crispr_detect_exec, crispr_detect_optdict)
+logger.info(' '.join(crispr_detect_cmd))
 #Run CRISPRDetect
 subprocess.run(crispr_detect_cmd, shell=False)
 
@@ -193,6 +194,7 @@ if os.stat(crispr_detect_gff).st_size > 0:
                           '-T':opts.threads,
                           '-n':'11'}
         cdhit_est_spc_cmd = shell_tools.exec_cmd_generate('cd-hit-est', cdhit_est_opts)
+        logger.info(' '.join(cdhit_est_spc_cmd))
         logger.info('Begin: clustering unique spacers for {}'.format(nt_fasta))
         subprocess.run(cdhit_est_spc_cmd)
         logger.info('End: clustering unique spacers for {}'.format(nt_fasta))
