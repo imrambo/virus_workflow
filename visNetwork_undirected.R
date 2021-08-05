@@ -80,19 +80,6 @@ network_output <- file.path(output_directory,
                           paste("undirected_network_visNetwork_", Sys.Date(), ".html", sep = ''))
 
 #-----------------------------------------------------------------------------
-# #Input file used for NetAn undirected network
-# netan_undirected_path <- ""
-# 
-# netan_undirected <- spacepharer_allbin_genbank_vibrant_blastn %>%
-#   dplyr::select(Bin, virus) %>%
-#   dplyr::distinct()
-# 
-# netan_iu <- paste("/Users/ian/Documents/phd_research/CRISPRCas_Sediment/GuaymasC/NetAn/GuaymasC_AllBin_Undirected_", Sys.Date(), ".txt", sep = '')
-# write.table(netan_input_undirected,
-#             netan_iu,
-#             quote = FALSE, col.names = FALSE, row.names = FALSE, fileEncoding = "UTF-8",
-#             sep = "\t")
-
 #NetAn input file containing node connections
 netan <- read.table(netan_file,
                     col.names = c("from", "to"),
@@ -116,7 +103,7 @@ taxa_na_label <- "Guaymas21 Virus"
 if(exists("taxonomy_df") && is.data.frame(get("taxonomy_df"))) {
   print("INFO: Adding taxonomy labels to network groups")
   add_taxonomy = TRUE
-  cc_groups = cc_groups %>% dplyr::left_join(taxonomy_df)
+  cc_groups = cc_groups %>% dplyr::left_join(taxonomy_df, by = "Bin")
   #Add a taxonomic identifier for unclassified nodes
   cc_groups$Taxonomy[which(is.na(cc_groups$Taxonomy) & grepl("scaffold_[0-9]+", cc_groups$Bin))] = taxa_na_label
   
